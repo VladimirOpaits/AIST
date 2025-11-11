@@ -1,8 +1,21 @@
 from services.parser import parse_pdf
 import os
 
-file_path = "~/AIST/romeo-and-juliet_PDF_FolgerShakespeare.pdf"
-file_path = os.path.expanduser(file_path)
+from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import FileResponse
 
-text = parse_pdf(file_path)
-print(text[:500])
+app = FastAPI()
+
+@app.post("/upload-pdf")
+async def upload_pdf(file: UploadFile = File(...)):
+    if file.content_type != "application/pdf":
+        return {"error": "Файл не является PDF"}
+
+    pdf_bytes = await file.read()
+
+    with open(f"uploaded_{file.filename}", "wb") as f:
+        f.write(pdf_bytes)
+
+    text = parse_pdf(f"uploaded_{file.filename}")
+
+    return {"text": text}
