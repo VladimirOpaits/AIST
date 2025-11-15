@@ -5,3 +5,5 @@ sentence-transformers
 langchain
 fastapi
 uvicorn
+dotenv
+openai
