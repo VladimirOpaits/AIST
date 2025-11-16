@@ -91,3 +91,4 @@ export default function Query() {
     </div>
   );
 }
+

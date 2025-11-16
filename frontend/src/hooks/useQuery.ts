@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { QueryResponse, QueryHistory } from '@/types/rag';
+import { QueryResponse, LLMQueryResponse, QueryHistory } from '@/types/rag';
 import { ragApi } from '@/api/ragApi';
 import { useToast } from '@/hooks/use-toast';
 
 export const useQuery = () => {
   const [loading, setLoading] = useState(false);
-  const [currentResponse, setCurrentResponse] = useState<QueryResponse | null>(null);
+  const [currentResponse, setCurrentResponse] = useState<QueryResponse | LLMQueryResponse | null>(null);
   const [history, setHistory] = useState<QueryHistory[]>([]);
   const { toast } = useToast();
 
@@ -30,10 +30,10 @@ export const useQuery = () => {
       // Add to history
       const historyItem: QueryHistory = {
         id: Date.now().toString(),
-        query: response.query,
-        answer: response.answer,
-        timestamp: response.timestamp || new Date().toISOString(),
-        source_count: response.source_nodes.length,
+        query: 'query' in response ? response.query : query,
+        answer: 'answer' in response ? response.answer : `Найдено ${response.results.length} результатов`,
+        timestamp: new Date().toISOString(),
+        source_count: 'source_nodes' in response ? response.source_nodes.length : response.results.length,
       };
       setHistory([historyItem, ...history]);
     } catch (error) {
