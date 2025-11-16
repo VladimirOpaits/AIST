@@ -7,3 +7,8 @@ fastapi
 uvicorn
 dotenv
 openai
+langchain-openai
+llama-index-core
+llama-index-vector-stores-chroma
+llama-index-embeddings-openai
+langchain-community
