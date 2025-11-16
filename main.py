@@ -4,12 +4,31 @@ import os
 import tempfile
 
 from typing import Optional
+from pathlib import Path
 
 from fastapi import FastAPI, UploadFile, File, Query
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+frontend_dist = Path(__file__).parent / "frontend" / "dist"
+app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 client = ChromaDBClient(path="./data", collection_name="notes")
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello, World!"}
 
 @app.post("/upload-pdf")
 async def upload_pdf(file: UploadFile = File(...)):
