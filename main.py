@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 frontend_dist = Path(__file__).parent / "frontend" / "dist"
-app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+app.mount("/static", StaticFiles(directory=frontend_dist, html=True), name="frontend")
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,9 +26,10 @@ app.add_middleware(
 
 client = ChromaDBClient(path="./data", collection_name="notes")
 
+
 @app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+def serve_front():
+    return FileResponse(frontend_dist / "index.html")
 
 @app.post("/upload-pdf")
 async def upload_pdf(file: UploadFile = File(...)):
