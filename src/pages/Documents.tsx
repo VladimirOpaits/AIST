@@ -1,10 +1,33 @@
-import { FileText, Loader2, RefreshCw } from 'lucide-react';
-import { DocumentCard } from '@/components/documents/DocumentCard';
+import { FileText, Loader2, RefreshCw, Trash2 } from 'lucide-react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export default function Documents() {
   const { documents, loading, refetch, deleteDocument } = useDocuments();
+
+  // Group documents by source
+  const groupedDocs = documents.reduce((acc, doc) => {
+    const source = doc.metadata.source || 'Unknown';
+    if (!acc[source]) {
+      acc[source] = [];
+    }
+    acc[source].push(doc);
+    return acc;
+  }, {} as Record<string, typeof documents>);
 
   if (loading) {
     return (
@@ -23,7 +46,7 @@ export default function Documents() {
             <h1 className="text-3xl font-bold">Документы</h1>
           </div>
           <p className="text-muted-foreground">
-            Всего документов: {documents.length}
+            Всего чанков: {documents.length} | Документов: {Object.keys(groupedDocs).length}
           </p>
         </div>
         <Button onClick={refetch} variant="outline" size="sm">
@@ -41,13 +64,69 @@ export default function Documents() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {documents.map((doc) => (
-            <DocumentCard
-              key={doc.doc_id}
-              document={doc}
-              onDelete={deleteDocument}
-            />
+        <div className="space-y-4">
+          {Object.entries(groupedDocs).map(([source, chunks]) => (
+            <Card key={source}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <div>
+                      <h3 className="font-semibold">{source}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {chunks.length} чанков
+                      </p>
+                    </div>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Удалить документ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Это действие удалит все {chunks.length} чанков документа "{source}". Отменить это действие невозможно.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Отмена</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            chunks.forEach(chunk => deleteDocument(chunk.doc_id));
+                          }}
+                        >
+                          Удалить
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-2 pr-4">
+                    {chunks.map((chunk, index) => (
+                      <div
+                        key={chunk.doc_id}
+                        className="p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+                      >
+                        <div className="flex items-start gap-2 mb-2">
+                          <Badge variant="outline" className="text-xs">
+                            {chunk.metadata.chunk_index !== undefined 
+                              ? `Чанк ${chunk.metadata.chunk_index}`
+                              : `#${index + 1}`}
+                          </Badge>
+                        </div>
+                        <p className="text-sm line-clamp-3">{chunk.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

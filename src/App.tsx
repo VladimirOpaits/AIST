@@ -7,8 +7,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import Upload from "./pages/Upload";
 import Documents from "./pages/Documents";
-import DocumentDetail from "./pages/DocumentDetail";
-import Query from "./pages/Query";
+import QueryPage from "./pages/Query";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,8 +30,7 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Upload />} />
                   <Route path="/documents" element={<Documents />} />
-                  <Route path="/documents/:docId" element={<DocumentDetail />} />
-                  <Route path="/query" element={<Query />} />
+                  <Route path="/query" element={<QueryPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
