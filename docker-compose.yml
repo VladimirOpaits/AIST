@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  my_service:
+    build: .
+    image: my_service_image:latest   
+    container_name: my_service
+    ports:
+      - "8000:8000"                  
+    restart: unless-stopped
+    environment:
+      - OPEN_AI_API=${OPEN_AI_API}           
+
+  pix2tex:
+    image: lukasblecher/pix2tex:api
+    container_name: pix2tex
+    ports:
+      - "5000:5000"
+    restart: unless-stopped

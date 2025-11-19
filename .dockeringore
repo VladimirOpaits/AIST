@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual envs
+venv/
+.env
+*.env
+
+# Node stuff
+frontend/node_modules/
+*.log
+
+rebuild.sh
+
+# Git stuff
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# OS files
+.DS_Store
+
+# --- Frontend: игнорим всё, кроме dist ---
+frontend/node_modules/
+frontend/src/
+frontend/public/
+frontend/.env
+frontend/.env.*
+frontend/package.json
+frontend/package-lock.json
+frontend/bun.lockb
+frontend/tsconfig*.json
+frontend/*.config.js
+frontend/*.config.ts
+frontend/README.md
+frontend/ARCHITECTURE.md
+frontend/SETUP.md
+
+# Разрешаем dist — единственное, что нужно для продакшена
+!frontend/dist/
+
