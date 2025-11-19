@@ -12,3 +12,11 @@ llama-index-core
 llama-index-vector-stores-chroma
 llama-index-embeddings-openai
 langchain-community
+layoutparser[detectron2] 
+pdf2image 
+pytesseract 
+pix2tex 
+pdfplumber 
+opencv-python
+ultralytics
+layoutparser

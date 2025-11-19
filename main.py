@@ -14,7 +14,8 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 frontend_dist = Path(__file__).parent / "frontend" / "dist"
-app.mount("/static", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+app.mount("/app", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -49,7 +50,7 @@ async def upload_pdf(file: UploadFile = File(...)):
             return {"error": "PDF без текста"}
 
         metadata = {"source": file.filename}
-        await client.add_document_chunks(doc_id_prefix=file.filename, text=text, metadata=metadata)
+        await client.add_document_chunks_async(doc_id_prefix=file.filename, text=text, metadata=metadata)
 
         return {"status": "ok", "chunks_added": True}
     finally:
@@ -104,7 +105,7 @@ async def query_with_llm(
     q: str = Query(..., description="Query text"),
     n_results: int = Query(3, description="Number of results")
 ):
-    results = client.query_with_llm(query_text=q, n_results=n_results)
+    results = await client.query_with_llm_async(query_text=q, n_results=n_results)
 
     response = {
         "answer": results["answer"],
