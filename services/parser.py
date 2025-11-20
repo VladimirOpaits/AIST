@@ -17,7 +17,7 @@ def latex_ocr_remote(image):
 
     return resp.text.strip()
 
-model_file = "yolov8s-doclaynet.pt" if torch.cuda.is_available() else "yolov8n-doclaynet.pt"
+model_file = "yolov8s-doclaynet.pt"
 yolo_model = YOLO(model_file)
 
 def detect_layout(image, confidence_threshold=0.5):

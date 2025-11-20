@@ -13,10 +13,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-frontend_dist = Path(__file__).parent / "frontend" / "dist"
-app.mount("/app", StaticFiles(directory=frontend_dist, html=True), name="frontend")
-
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
@@ -122,3 +118,7 @@ async def query_with_llm(
     }
 
     return JSONResponse(content=response)
+
+
+frontend_dist = Path(__file__).parent / "frontend" / "dist"
+app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")

@@ -213,7 +213,6 @@ Summary:""")
             prev_summaries = []
             nodes = []
             
-            # Последовательная генерация с контекстом
             for i, chunk in enumerate(chunks):
                 chunk_id = f"{doc_id_prefix}_chunk_{i+1}"
                 
@@ -361,10 +360,47 @@ If the context doesn't contain enough information, say so."""
         system_prompt: Optional[str] = None
     ) -> Dict:
         return asyncio.run(self.query_with_llm_async(query_text, n_results, system_prompt))
-
-    def get_all(self) -> Dict:
+    
+    def clean_text(self, raw_text: str) -> str:
+        if not raw_text:
+            return ""
+        text = re.sub(r'UNKNOWN BLOCK: ?', '', raw_text)
+        text = re.sub(r'\n+', '\n', text)
+        text = re.sub(r'\s+\n', '\n', text)
+        text = text.strip()
+        return text
+    
+    def get_all(self) -> List[Dict]:
         try:
-            return self.chroma_collection.get()
+            raw_chunks = self.chroma_collection.get()  
+            processed_chunks = []
+
+            for chunk in raw_chunks.get("documents", []):
+                node_content = chunk.get("_node_content")
+                if not node_content:
+                    continue
+
+                metadata = node_content.get("metadata", {})
+                processed_metadata = {
+                    "source": metadata.get("source", ""),
+                    "author": metadata.get("author", ""),    
+                    "date": metadata.get("date", ""),         
+                    "chunk_index": metadata.get("chunk_index", 0),
+                    "total_chunks": metadata.get("total_chunks", 0)
+                }
+
+                summary = metadata.get("summary", "")
+                text = self.clean_text(summary)
+
+                processed_chunk = {
+                    "id": metadata.get("doc_id_prefix", "") + f"_chunk_{metadata.get('chunk_index', 0)}",
+                    "text": text,
+                    "metadata": processed_metadata
+                }
+                processed_chunks.append(processed_chunk)
+
+            return processed_chunks
+
         except Exception as e:
             logger.error(f"Failed to get all documents: {e}")
             raise

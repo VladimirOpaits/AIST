@@ -18,3 +18,4 @@ pix2tex
 pdfplumber 
 opencv-python
 ultralytics
+python-multipart

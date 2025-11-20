@@ -1,0 +1,15 @@
+# Игнорируем всё ненужное
+__pycache__/
+*.pyc
+venv/
+.env
+*.env
+frontend/node_modules/
+*.log
+.git/
+.gitignore
+.DS_Store
+rebuild.sh
+
+# Явно разрешаем только нужные файлы для фронтенда
+!frontend/dist/
