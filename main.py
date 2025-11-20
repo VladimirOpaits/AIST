@@ -73,7 +73,7 @@ async def query_pdf(
 
     return JSONResponse(content={"query": q, "results": response})
 
-@app.get("/all-docs")
+@app.get("/documents")
 async def get_all_docs():
     all_docs = client.get_all()
     return JSONResponse(content=all_docs)
@@ -121,4 +121,6 @@ async def query_with_llm(
 
 
 frontend_dist = Path(__file__).parent / "frontend" / "dist"
+app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="assets")
 app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+

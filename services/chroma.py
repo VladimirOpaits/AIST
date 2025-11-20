@@ -369,35 +369,30 @@ If the context doesn't contain enough information, say so."""
         text = re.sub(r'\s+\n', '\n', text)
         text = text.strip()
         return text
-    
+        
     def get_all(self) -> List[Dict]:
         try:
-            raw_chunks = self.chroma_collection.get()  
+            raw_chunks = self.chroma_collection.get()
             processed_chunks = []
 
-            for chunk in raw_chunks.get("documents", []):
-                node_content = chunk.get("_node_content")
-                if not node_content:
-                    continue
+            documents = raw_chunks.get("documents", [])
+            metadatas = raw_chunks.get("metadatas", [])
+            ids = raw_chunks.get("ids", [])
 
-                metadata = node_content.get("metadata", {})
-                processed_metadata = {
-                    "source": metadata.get("source", ""),
-                    "author": metadata.get("author", ""),    
-                    "date": metadata.get("date", ""),         
-                    "chunk_index": metadata.get("chunk_index", 0),
-                    "total_chunks": metadata.get("total_chunks", 0)
-                }
+            for i, (doc_id, text, metadata) in enumerate(zip(ids, documents, metadatas)):
+                chunk_id = metadata.get("source", "doc") + f"_chunk_{metadata.get('chunk_index', i)}"
 
-                summary = metadata.get("summary", "")
-                text = self.clean_text(summary)
-
-                processed_chunk = {
-                    "id": metadata.get("doc_id_prefix", "") + f"_chunk_{metadata.get('chunk_index', 0)}",
-                    "text": text,
-                    "metadata": processed_metadata
-                }
-                processed_chunks.append(processed_chunk)
+                processed_chunks.append({
+                    "id": chunk_id,
+                    "text": self.clean_text(text) if text else "",
+                    "metadata": {
+                        "source": metadata.get("source", ""),
+                        "author": metadata.get("author", ""),
+                        "date": metadata.get("date", ""),
+                        "chunk_index": metadata.get("chunk_index", i),
+                        "total_chunks": metadata.get("total_chunks", 0)
+                    }
+                })
 
             return processed_chunks
 
