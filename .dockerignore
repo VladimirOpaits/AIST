@@ -10,6 +10,7 @@ frontend/node_modules/
 .gitignore
 .DS_Store
 rebuild.sh
+frontend_backup
 
 # Явно разрешаем только нужные файлы для фронтенда
 !frontend/dist/
